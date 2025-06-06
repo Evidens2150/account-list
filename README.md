@@ -25,5 +25,8 @@ npm run lint
 npm run deploy
 ```
 
+### Hosting
+See [Live version](https://evidens2150.github.io/account-list/)
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
