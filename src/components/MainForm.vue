@@ -1,6 +1,5 @@
 <template>
   <div class="main-form">
-    <div>{{ accountListOrigin }}</div>
     <div class="main-form__header">
       <h2 class="main-form__title">Учетные записи</h2>
       <v-button
@@ -89,10 +88,6 @@ const accountList = computed((): IAccountItem[] =>
 
 const isAccountList = computed((): boolean => 
   !!accountList.value.length || !!newAccount.value
-);
-
-const accountListOrigin = computed((): any[] => 
-  commonStore.accountList
 );
 
 const isCreationNotComplete = computed((): boolean => {
