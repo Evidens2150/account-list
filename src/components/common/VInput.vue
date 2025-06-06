@@ -7,6 +7,7 @@
       autocomplete="new-password"
       class="input"
       :class="{'input--required': required}"
+      :maxlength="maxlength"
       @blur="emit('blur')"
     />
     <v-button
@@ -35,12 +36,14 @@ const props = withDefaults(defineProps<IInputProps>(), {
   type: 'text',
   placeholder: '',
   required: false,
+  maxlength: 100,
 });
 
 const { 
   type,
   placeholder,
   required,
+  maxlength,
 } = toRefs(props);
 
 // Model
@@ -49,7 +52,7 @@ const model = defineModel<string>();
 // Emit
 const emit = defineEmits<{
   (e: 'blur'): void
-}>()
+}>();
 
 // Data
 const currentInputType = ref<InputType>(type.value);

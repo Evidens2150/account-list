@@ -3,6 +3,7 @@
     <v-input
       v-model="currentAccount.mark"
       class="account__cell"
+      :maxlength="50"
       @blur="validateForm"
     />
     <v-select
@@ -37,7 +38,7 @@
 
 <script setup lang="ts">
 // Modules
-import { computed, reactive, toRefs, watch, defineProps } from 'vue';
+import { computed, reactive, toRefs, watch, defineProps, defineEmits } from 'vue';
 // Components
 import VInput from '@/components/common/VInput.vue';
 import VSelect from '@/components/common/VSelect.vue';
@@ -59,6 +60,12 @@ const {
   login,
   password,
 } = toRefs(props);
+
+// Emit
+const emit = defineEmits<{
+  (e: 'create-complete'): void;
+  (e: 'delete-account', value: number): void;
+}>();
 
 // Data
 const commonStore = useCommonStore();
@@ -82,18 +89,14 @@ const currentAccount = reactive<IAccountItem>({
   mark: mark.value,
   type: type.value,
   login: login.value,
-  password: password.value || '',
+  password: password.value,
 });
 
 // Watchers
 watch(
   () => currentAccount,
   (newValue) => {
-    const processedAccount: IAccountItem = {
-      ...newValue,
-      password: newValue.type === 'local' ? newValue.password : null,
-    }
-    commonStore.updateAccount(processedAccount)
+    commonStore.updateAccount(newValue)
   },
   { deep: true }
 );
@@ -107,13 +110,20 @@ watch(
 
 // Methods
 const deleteAccount = () => {
-  commonStore.deleteAccount(id.value);
+  emit('delete-account', id.value);
 };
 
 const validateForm = () => {
   const fieldList: string[] = Object.keys(currentAccount);
 
   fieldList.forEach(field => validateField(field));
+
+  const isFormValid: boolean = Object.values(errors).every(value => !value);
+
+  if (isFormValid) {
+    commonStore.addAccount(currentAccount);
+    emit('create-complete');
+  }
 };
 
 const validateField = (field: string) => {
@@ -122,7 +132,9 @@ const validateField = (field: string) => {
       errors.login = !currentAccount.login.trim();
       break;
     case 'password':
-      errors.password = !currentAccount.password || currentAccount.password.trim() === '';
+      errors.password = !isPassword.value
+        ? false
+        : !currentAccount.password || currentAccount.password.trim() === '';
       break;
   }
 }

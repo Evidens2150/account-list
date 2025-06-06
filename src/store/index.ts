@@ -20,7 +20,7 @@ export const useCommonStore = defineStore('commonStore', () => {
       id: account.id,
       type: account.type,
       login: account.login,
-      password: account.password || null,
+      password: account.type === 'local' ? account.password : null,
       markList,
     }
   };
@@ -64,7 +64,7 @@ export const useCommonStore = defineStore('commonStore', () => {
         id: account.id,
         type: account.type,
         login: account.login,
-        password: account.password,
+        password: account.password || '',
         mark,
       }
 

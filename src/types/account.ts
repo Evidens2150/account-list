@@ -10,13 +10,14 @@ export interface IAccountCommonData {
   id: number;
   type: AccountType;
   login: string;
-  password: AccountPassword;
 }
 
 export interface IAccountItem extends IAccountCommonData {
   mark: string;
+  password: string;
 }
 
 export interface IAccountStoreItem extends IAccountCommonData {
   markList: IAccountStoreItemMark[];
+  password: AccountPassword;
 }

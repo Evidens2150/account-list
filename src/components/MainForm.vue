@@ -1,5 +1,6 @@
 <template>
   <div class="main-form">
+    <div>{{ accountListOrigin }}</div>
     <div class="main-form__header">
       <h2 class="main-form__title">Учетные записи</h2>
       <v-button
@@ -17,17 +18,34 @@
     </div>
 
     <ul class="main-form__account-list-header">
-      <li v-for="(heading, index) in headingList" :key="index">
+      <li
+        v-for="(heading, index) in headingList"
+        :key="index"
+      >
         {{ heading }}
       </li>
     </ul>
 
     <ul
-      v-if="accountList.length"
+      v-if="isAccountList"
       class="account-list"
     >
-      <li v-for="account in accountList" :key="account.id" class="account-item">
-        <accout-item v-bind="account" />
+      <li
+        v-for="account in accountList"
+        :key="account.id"
+        class="account-item"
+      >
+        <accout-item
+          v-bind="account"
+          @delete-account="handleDeleteAccount(account.id)"
+        />
+      </li>
+      <li v-if="newAccount">
+        <accout-item
+          v-bind="newAccount"
+          @create-complete="handleClearNewAccount"
+          @delete-account="handleClearNewAccount"
+        />
       </li>
     </ul>
 
@@ -42,7 +60,7 @@
 
 <script setup lang="ts">
 // Modules
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 // Components
 import VButton from '@/components/common/VButton.vue';
 import AddIcon from '@/components/common/icons/AddIcon.vue';
@@ -62,31 +80,59 @@ const headingList: string[] = [
   'Логин',
   'Пароль',
 ];
+const newAccount = ref<IAccountItem | null>(null);
 
 // Computed
 const accountList = computed((): IAccountItem[] => 
   commonStore.formattedAccountList
 );
 
-const createButtonDisabled = computed((): boolean =>
-  accountList.value.some(account => !account.login || (account.type === 'local' && !account.password))
+const isAccountList = computed((): boolean => 
+  !!accountList.value.length || !!newAccount.value
 );
 
-const createButtonTitle = computed((): string =>
-  createButtonDisabled.value
+const accountListOrigin = computed((): any[] => 
+  commonStore.accountList
+);
+
+const isCreationNotComplete = computed((): boolean => {
+  if (!newAccount.value) return false;
+
+  return !newAccount.value.login || (newAccount.value.type === 'local' && !newAccount.value.password)
+});
+
+const createButtonDisabled = computed((): boolean =>
+  accountList.value.some(account => !account.login || (account.type === 'local' && !account.password))
+  || isCreationNotComplete.value
+);
+
+const createButtonTitle = computed((): string => {
+  if (isCreationNotComplete.value) {
+    return 'Необходимо завершить создание учётной записи'
+  }
+
+  return createButtonDisabled.value
     ? 'Необходимо исправить данные учётной записи'
     : 'Добавить учетную запись'
-);
+});
 
 // Methods
 const createAccount = () => {
-  commonStore.addAccount({
+  newAccount.value = {
     id: Date.now(),
     mark: '',
     type: 'local',
     login: '',
     password: '',
-  })
+  }
+};
+
+const handleClearNewAccount = () => {
+  newAccount.value = null;
+};
+
+const handleDeleteAccount = (accountId: number) => {
+  commonStore.deleteAccount(accountId);
 };
 </script>
 
@@ -139,7 +185,7 @@ const createAccount = () => {
 
 .main-form__account-list-header {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
+  grid-template-columns: repeat(4, minmax(0,1fr)) 40px;
   background-color: #e0e0e0;
   padding: 8px;
   border-radius: 4px;
