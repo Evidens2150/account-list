@@ -42,7 +42,7 @@
       <li v-if="newAccount">
         <accout-item
           v-bind="newAccount"
-          @create-complete="handleClearNewAccount"
+          @create-complete="handleCreateNewAccount"
           @delete-account="handleClearNewAccount"
         />
       </li>
@@ -120,6 +120,11 @@ const createAccount = () => {
     login: '',
     password: '',
   }
+};
+
+const handleCreateNewAccount = (currentAccount: IAccountItem) => {
+  commonStore.addAccount(currentAccount);
+  handleClearNewAccount();
 };
 
 const handleClearNewAccount = () => {

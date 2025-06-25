@@ -63,7 +63,7 @@ const {
 
 // Emit
 const emit = defineEmits<{
-  (e: 'create-complete'): void;
+  (e: 'create-complete', value: IAccountItem): void;
   (e: 'delete-account', value: number): void;
 }>();
 
@@ -121,8 +121,7 @@ const validateForm = () => {
   const isFormValid: boolean = Object.values(errors).every(value => !value);
 
   if (isFormValid) {
-    commonStore.addAccount(currentAccount);
-    emit('create-complete');
+    emit('create-complete', currentAccount);
   }
 };
 
